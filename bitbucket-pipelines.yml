@@ -1,0 +1,32 @@
+image: docker/compose:1.25.4
+pipelines:
+  custom:
+    Deploy Production:
+      - step:
+          name: Composer install
+          size: 2x
+          services:
+            - docker
+          caches:
+            - docker
+            - composer
+          script:
+            - docker-compose up -d
+            - docker-compose exec -T app composer install --prefer-dist --optimize-autoloader --no-dev
+            - docker-compose exec -T app php artisan config:clear
+          artifacts:
+            - src/vendor/**
+            - src/bootstrap/cache/*.php
+      - step:
+          name: Deploy
+          deployment: production
+          image: node:14.5.0-alpine
+          caches:
+            - node
+          script:
+            - mv .cd/serverless-prod.yml src/serverless.yml
+            - cd src/
+            - npm install -g serverless@2.35.0
+            - serverless config credentials --stage prod --provider aws --key ${MY_AWS_ACCESS_KEY_ID} --secret ${MY_AWS_SECRET_ACCESS_KEY}
+            - serverless deploy --stage prod
+

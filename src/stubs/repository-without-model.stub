@@ -1,0 +1,8 @@
+<?php
+
+namespace NamespaceRepository;
+
+class RepositoryName extends Repository
+{
+
+}

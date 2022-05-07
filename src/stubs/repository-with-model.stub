@@ -1,0 +1,13 @@
+<?php
+
+namespace NamespaceRepository;
+
+use App\Models\ModelRepository;
+
+class RepositoryName extends Repository
+{
+    public function __construct()
+    {
+        $this->setModel(ModelRepository::class);
+    }
+}

@@ -1,0 +1,53 @@
+service: laravel
+
+frameworkVersion: '2'
+
+provider:
+  name: aws
+  region: us-east-1
+  stage: prod
+  runtime: provided.al2
+  environment:
+    MY_AWS_ACCESS_KEY_ID: ${env:MY_AWS_ACCESS_KEY_ID}
+    MY_AWS_SECRET_ACCESS_KEY: ${env:MY_AWS_SECRET_ACCESS_KEY}
+  iamRoleStatements:
+    - Effect: Allow
+      Action: s3:*
+      Resource:
+        - !Sub "${Storage.Arn}"
+        - !Sub "${Storage.Arn}/*"
+
+package:
+  exclude:
+    - node_modules/**
+    - public/storage
+    - resources/assets/**
+    - storage/**
+    - tests/**
+
+plugins:
+  - ./vendor/bref/bref
+  - ./vendor/bref/extra-php-extensions
+
+functions:
+  web:
+    handler: public/index.php
+    timeout: 28
+    layers:
+      - ${bref:layer.php-80-fpm}
+      - ${bref-extra:mongodb-php-80}
+    events:
+      - httpApi: "*"
+  artisan:
+    handler: artisan
+    timeout: 120
+    layers:
+      - ${bref:layer.php-80}
+      - ${bref:layer.console}
+
+resources:
+  Resources:
+    Storage:
+      Type: AWS::S3::Bucket
+      Properties:
+        BucketName: "client-management-prod"
