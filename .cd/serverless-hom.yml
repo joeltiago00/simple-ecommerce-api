@@ -5,7 +5,7 @@ frameworkVersion: '2'
 provider:
   name: aws
   region: us-east-1
-  stage: prod
+  stage: hom
   runtime: provided.al2
   environment:
     MY_AWS_ACCESS_KEY_ID: ${env:MY_AWS_ACCESS_KEY_ID}
@@ -51,4 +51,4 @@ resources:
     Storage:
       Type: AWS::S3::Bucket
       Properties:
-        BucketName: "client-management-prod"
+        BucketName: "client-management-hom"
